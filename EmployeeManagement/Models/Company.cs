@@ -2,5 +2,6 @@
 
 public class Company : BaseEntity
 {
+    public string CompanyName { get; set; }
 
 }
