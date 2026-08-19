@@ -13,6 +13,8 @@ public class EmployeeDto
     public string CompanyName { get; set; }
     public Department Department { get; set; }
     public Gender Gender { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? ModifiedAt { get; set; }
 }
 
 

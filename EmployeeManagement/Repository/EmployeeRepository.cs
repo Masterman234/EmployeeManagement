@@ -15,7 +15,7 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<Employee> CreateEmployeeAsync(Employee employee)
     {
         var result = await _context.Employees.AddAsync(employee);
-        _context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
         return result.Entity;
     }
 
