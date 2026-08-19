@@ -32,7 +32,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = request.LastName,
             Email = request.Email,
             Telephone = request.Telephone,
-            CompanyName = request.CompanyName,
             Department = request.Department,
             Gender = request.Gender,
             CreatedAt = DateTime.UtcNow
@@ -46,7 +45,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender
         };
@@ -86,7 +84,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
                 LastName = employee.LastName,
                 Email = employee.Email,
                 Telephone = employee.Telephone,
-                CompanyName = employee.CompanyName,
                 Department = employee.Department,
                 Gender = employee.Gender,
             });
@@ -111,7 +108,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender,
         };
@@ -146,7 +142,6 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender
         };

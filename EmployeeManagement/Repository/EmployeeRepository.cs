@@ -34,7 +34,7 @@ public class EmployeeRepository : IEmployeeRepository
 
     public async Task<Employee> ExistByEmailAsync(string email)
     {
-       return  await _context.Employees.FirstOrDefaultAsync(e => e.Email == email);
+       return await _context.Employees.FirstOrDefaultAsync(e => e.Email == email);
     }
 
     public async Task<Employee> ExistByPhoneAsync(string phone)

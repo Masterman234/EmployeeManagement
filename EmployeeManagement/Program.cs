@@ -13,9 +13,10 @@ builder.Services.AddOpenApi();
 
 //Repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 //Services Registration
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

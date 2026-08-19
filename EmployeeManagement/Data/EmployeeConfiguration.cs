@@ -24,10 +24,6 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
             .IsRequired()
             .HasMaxLength(20);
 
-        builder.Property(e => e.CompanyName)
-            .IsRequired()
-            .HasMaxLength(100);
-
         builder.Property(e => e.Department)
             .HasConversion<string>()
             .IsRequired();
