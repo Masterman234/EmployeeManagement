@@ -4,6 +4,7 @@ public class BaseResponseModel<T>
 {
     public T? Data { get; set; }
     public bool Success { get; set; }
+    public string? Message { get; set; }
     public string? Error { get; set; }
 
 
@@ -13,6 +14,7 @@ public class BaseResponseModel<T>
         {
             Data = data,
             Success = true,
+            Message = message,
             Error = string.Empty
         };
     }
@@ -23,6 +25,7 @@ public class BaseResponseModel<T>
         {
             Data = default,
             Success = false,
+            Message = string.Empty,
             Error = message
         };
     }
