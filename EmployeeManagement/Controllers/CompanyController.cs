@@ -9,7 +9,7 @@ namespace EmployeeManagement.Controllers
     [ApiController]
     public class CompanyController(ICompanyService companyService) : ControllerBase
     {
-        [HttpPost]
+        [HttpPost("CreateCompany")]
         public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyDto request)
         {
             var response = await companyService.CreateCompanyAsync(request);
@@ -21,7 +21,7 @@ namespace EmployeeManagement.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("GetAllCompanies")]
         public async Task<IActionResult> GetAllCompanies()
         {
             var response = await companyService.GetAllCompaniesAsync();
@@ -29,7 +29,7 @@ namespace EmployeeManagement.Controllers
         }
 
 
-        [HttpGet("{id:guid}")]
+        [HttpGet("GetCompanyById")]
         public async Task<IActionResult> GetCompanyById(Guid id)
         {
             var response = await companyService.GetCompanyByIdAsync(id);
@@ -42,7 +42,7 @@ namespace EmployeeManagement.Controllers
         }
 
 
-        [HttpPut("{id:guid}")]
+        [HttpPut("UpdateCompany")]
         public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] CompanyDto request)
         {
             if (!ModelState.IsValid)
@@ -59,7 +59,7 @@ namespace EmployeeManagement.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{id:guid}/deactivate")]
+        [HttpDelete("DeactivateCompany")]
         public async Task<IActionResult> DeactivateCompany(Guid id)
         {
             var response = await companyService.DeActivateCompanyAsync(id);
@@ -71,7 +71,7 @@ namespace EmployeeManagement.Controllers
             return Ok(response);
         }
 
-        [HttpPut("{id:guid}/activate")]
+        [HttpPut("ActivateCompany")]
         public async Task<IActionResult> ActivateCompany(Guid id)
         {
             var response = await companyService.ActivateCompanyAsync(id);
