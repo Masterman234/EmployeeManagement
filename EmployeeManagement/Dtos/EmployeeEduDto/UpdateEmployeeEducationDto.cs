@@ -1,9 +1,11 @@
-﻿using EmployeeManagement.Enums;
+﻿// Dtos/UpdateEmployeeEducationDto.cs
+using EmployeeManagement.Enums;
 
-namespace EmployeeManagement.Models;
+namespace EmployeeManagement.Dtos;
 
-public class EmployeeEducation : BaseEntity
+public class UpdateEmployeeEducationDto
 {
+    public Guid Id { get; set; }
     public Guid EmployeeId { get; set; }
     public string Institution { get; set; }
     public Qualification Qualification { get; set; }

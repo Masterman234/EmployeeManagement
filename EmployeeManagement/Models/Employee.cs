@@ -12,4 +12,5 @@ public class Employee : BaseEntity
     public string CompanyName { get; set; }
     public Department Department { get; set; }
     public Gender Gender { get; set; }
+   
 }

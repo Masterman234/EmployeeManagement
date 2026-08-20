@@ -6,22 +6,12 @@ namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EmployeeController(IEmployeeService employeeService) : ControllerBase
+public class EmployeeEducationController(IEmployeeEducationService employeeEducationService) : ControllerBase
 {
     [HttpPost("create")]
-    public async Task<IActionResult> Create(CreateEmployeeDto request)
+    public async Task<IActionResult> Create(CreateEmployeeEducationDto request)
     {
-        var result = await employeeService.CreateEmployeeAsync(request);
-        if (!result.Success)
-        {
-            return BadRequest(result);
-        }
-        return Ok(result);
-    }
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById([FromRoute] Guid id, EmployeeDto request)
-    {
-        var result = await employeeService.GetEmployeeByIdAsync(request.Id);
+        var result = await employeeEducationService.CreateEmployeeEducationAsync(request);
         if (!result.Success)
         {
             return BadRequest(result);
@@ -29,11 +19,21 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
         return Ok(result);
     }
 
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    {
+        var result = await employeeEducationService.GetEmployeeEducationByIdAsync(id);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
 
     [HttpGet("getAll")]
     public async Task<IActionResult> GetAll()
     {
-        var result = await employeeService.GetAllEmployeesAsync();
+        var result = await employeeEducationService.GetAllEmployeeEducationsAsync();
         if (!result.Success)
         {
             return BadRequest(result);
@@ -42,9 +42,10 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, EmployeeDto request)
+    public async Task<IActionResult> Update([FromRoute] Guid id, UpdateEmployeeEducationDto request)
     {
-        var result = await employeeService.UpdateEmployeeAsync(request);
+        request.Id = id;
+        var result = await employeeEducationService.UpdateEmployeeEducationAsync(request);
         if (!result.Success)
         {
             return BadRequest(result);
@@ -52,16 +53,14 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
         return Ok(result);
     }
 
-
-    [HttpDelete("delete")]
+    [HttpDelete("delete/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await employeeService.GetEmployeeByIdAsync(id);
+        var result = await employeeEducationService.DeleteEmployeeEducationAsync(id);
         if (!result.Success)
         {
             return BadRequest(result);
         }
         return Ok(result);
     }
-
 }
