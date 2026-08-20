@@ -11,6 +11,7 @@ namespace EmployeeManagement.Service
         Task<BaseResponseModel<CompanyDto>> UpdateCompanyAsync(CompanyDto request);
         Task<BaseResponseModel<bool>> ActivateCompanyAsync(Guid id);
         Task<BaseResponseModel<bool>> DeActivateCompanyAsync(Guid id);
+        Task<BaseResponseModel<CompanyDto>> GetCompanyByNameAsync(string name);
 
     }
 }

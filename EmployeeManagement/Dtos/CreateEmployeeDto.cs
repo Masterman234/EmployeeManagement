@@ -14,11 +14,9 @@ public class CreateEmployeeDto
     [Required(ErrorMessage = "Email is required."), StringLength(50)]
     public string Email { get; set; }
 
-    [Required(ErrorMessage = "Telephone is required."), StringLength(11)]
+    [Required(ErrorMessage = "Telephone is required."), StringLength(15)]
     public string Telephone { get; set; }
-
-    [Required(ErrorMessage = "Company is required."), StringLength(50)]
-    public Guid CompanyID { get; set; }
+    public Guid CompanyId { get; set; }
 
     [Required(ErrorMessage = "Department is required.")]
     public Department Department { get; set; }

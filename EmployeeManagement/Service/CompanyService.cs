@@ -5,7 +5,7 @@ using EmployeeManagement.Repository;
 
 namespace EmployeeManagement.Service
 {
-    public class CompanyService(ICompanyRepository companyRepository) : ICompanyService
+    public class CompanyService(ICompanyRepository companyRepository, IEmployeeRepository employeeRepository) : ICompanyService
     {
         public async Task<BaseResponseModel<bool>> ActivateCompanyAsync(Guid id)
         {
@@ -15,7 +15,7 @@ namespace EmployeeManagement.Service
                 return BaseResponseModel<bool>.FailureResponse("Invalid company ID");
             }
            
-            var company = await companyRepository.GetByIdAsync(id);
+            var company = await companyRepository.GetCompanyByIdAsync(id);
 
             if (company == null)
             {
@@ -30,7 +30,7 @@ namespace EmployeeManagement.Service
             company.IsActive = true;
             company.ModifiedAt = DateTime.UtcNow;
 
-            await companyRepository.UpdateAsync(company);
+            await companyRepository.UpdateCompanyAsync(company);
 
             return BaseResponseModel<bool>.SuccessResponse(true, "Company activated successfully.");
         }
@@ -44,7 +44,7 @@ namespace EmployeeManagement.Service
                 return BaseResponseModel<CompanyDto>.FailureResponse("Request cannot be null");
             }
 
-            var existingCompany = await companyRepository.GetByNameAsync(request.Name);
+            var existingCompany = await companyRepository.GetCompanyByNameAsync(request.Name);
             if (existingCompany != null)
             {
                 return BaseResponseModel<CompanyDto>.FailureResponse("Company with the same name already exists");
@@ -58,7 +58,7 @@ namespace EmployeeManagement.Service
                 CreatedAt = DateTime.UtcNow,
             };
 
-            var createdCompany = await companyRepository.CreateAsync(company);
+            var createdCompany = await companyRepository.CreateCompanyAsync(company);
             
             var companyDto   = new CompanyDto
             {
@@ -80,7 +80,7 @@ namespace EmployeeManagement.Service
                 return BaseResponseModel<bool>.FailureResponse("Invalid company ID");
             }
 
-            var company = await companyRepository.GetByIdAsync(id);
+            var company = await companyRepository.GetCompanyByIdAsync(id);
 
 
             if (company == null)
@@ -95,7 +95,7 @@ namespace EmployeeManagement.Service
 
             company.IsActive = false;
             company.ModifiedAt = DateTime.UtcNow;
-            await companyRepository.UpdateAsync(company);
+            await companyRepository.UpdateCompanyAsync(company);
             return BaseResponseModel<bool>.SuccessResponse(true, "Company deactivated successfully.");
         }
 
@@ -103,7 +103,7 @@ namespace EmployeeManagement.Service
 
         public async Task<BaseResponseModel<IEnumerable<CompanyDto>>> GetAllCompaniesAsync()
         {
-            var companies = await companyRepository.GetAllAsync();
+            var companies = await companyRepository.GetAllCompanyAsync();
             var companyDtos = companies.Select(c => new CompanyDto
             {
                 Id = c.Id,
@@ -117,7 +117,7 @@ namespace EmployeeManagement.Service
 
         public async Task<BaseResponseModel<CompanyDto>> GetCompanyByIdAsync(Guid id)
         {
-            var company = await companyRepository.GetByIdAsync(id);
+            var company = await companyRepository.GetCompanyByIdAsync(id);
 
             if (company == null)
             {
@@ -138,6 +138,39 @@ namespace EmployeeManagement.Service
         }
 
 
+        public async Task<BaseResponseModel<CompanyDto>> GetCompanyByNameAsync(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BaseResponseModel<CompanyDto>.FailureResponse("Company name is required");
+            }
+
+            var company = await companyRepository.GetCompanyByNameAsync(name);
+
+            if (company == null)
+            {
+                return BaseResponseModel<CompanyDto>.FailureResponse("Company not found");
+            }
+
+            var response = new CompanyDto
+            {
+                Id = company.Id,
+                Name = company.Name,
+                IsActive = company.IsActive,
+
+                Employees = company.Employees.Select(employee => new CompanyEmployeeDto
+                {
+                    EmployeeId = employee.Id,
+                    FullName = $"{employee.FirstName} {employee.LastName}",
+                    Department = employee.Department,
+                    Email = employee.Email,
+                    Telephone = employee.Telephone,
+                }).ToList()
+            };
+            return BaseResponseModel<CompanyDto>.SuccessResponse(response, "Company retrieved successfully");
+        }
+
+
         public async Task<BaseResponseModel<CompanyDto>> UpdateCompanyAsync(CompanyDto request)
         {
             // var company = await companyRepository.GetByIdAsync(request.Id);
@@ -152,13 +185,13 @@ namespace EmployeeManagement.Service
                 return BaseResponseModel<CompanyDto>.FailureResponse("Invalid company ID");
             }
 
-            var company = await companyRepository.GetByIdAsync(request.Id);
+            var company = await companyRepository.GetCompanyByIdAsync(request.Id);
 
             company.Id = request.Id;
             company.Name = request.Name;
             company.ModifiedAt = DateTime.UtcNow;
 
-            await companyRepository.UpdateAsync(company);
+            await companyRepository.UpdateCompanyAsync(company);
 
             var updatedCompanyDto = new CompanyDto
             {

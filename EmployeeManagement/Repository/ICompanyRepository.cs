@@ -4,15 +4,15 @@ namespace EmployeeManagement.Repository
 {
     public interface ICompanyRepository
     {
-        Task<List<Company>> GetAllAsync();
-        Task<Company?> GetByIdAsync(Guid id);
-        Task<Company?> GetByNameAsync(string name);
+        Task<List<Company>> GetAllCompanyAsync();
+        Task<Company?> GetCompanyByIdAsync(Guid id);
+        Task<Company?> GetCompanyByNameAsync(string name);
 
-        Task<bool> ExistsAsync(Guid id);
-        Task<bool> ExistsByNameAsync(string name);
+        Task<bool> ExistCompanyAsync(Guid id);
+        Task<bool> ExistsByCompanyNameAsync(string name);
 
-        Task<Company> CreateAsync(Company company);
-        Task UpdateAsync(Company company);
+        Task<Company> CreateCompanyAsync(Company company);
+        Task UpdateCompanyAsync(Company company);
 
     }
 }

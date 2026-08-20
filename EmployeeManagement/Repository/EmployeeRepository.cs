@@ -15,8 +15,8 @@ public class EmployeeRepository : IEmployeeRepository
     public async Task<Employee> CreateEmployeeAsync(Employee employee)
     {
         var result = await _context.Employees.AddAsync(employee);
-        _context.SaveChangesAsync();
-        return result.Entity;
+        await _context.SaveChangesAsync();
+        return employee;
     }
 
     public async Task<bool> DeleteEmployeeAsync(Guid id)
@@ -49,7 +49,9 @@ public class EmployeeRepository : IEmployeeRepository
 
     public Task<Employee> GetEmployeeByIdAsync(Guid id)
     {
-        return _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
+        return _context.Employees
+            .Include(e => e.Company)
+            .FirstOrDefaultAsync(e => e.Id == id);
     }
 
     public async Task<bool> UpdateEmployeeAsync(Employee employee)

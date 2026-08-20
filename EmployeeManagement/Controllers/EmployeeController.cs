@@ -20,9 +20,9 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById([FromRoute] Guid id, EmployeeDto request)
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
-        var result = await employeeService.GetEmployeeByIdAsync(request.Id);
+        var result = await employeeService.GetEmployeeByIdAsync(id);
         if (!result.Success)
         {
             return BadRequest(result);
@@ -44,6 +44,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, EmployeeDto request)
     {
+        request.Id = id;
         var result = await employeeService.UpdateEmployeeAsync(request);
         if (!result.Success)
         {
@@ -56,7 +57,7 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     [HttpDelete("delete")]
     public async Task<IActionResult> Delete(Guid id)
     {
-        var result = await employeeService.GetEmployeeByIdAsync(id);
+        var result = await employeeService.DeleteEmployeeAsync(id);
         if (!result.Success)
         {
             return BadRequest(result);

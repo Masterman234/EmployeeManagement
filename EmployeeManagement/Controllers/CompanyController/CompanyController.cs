@@ -3,7 +3,7 @@ using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmployeeManagement.Controllers
+namespace EmployeeManagement.Controllers.CompanyController
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -26,6 +26,20 @@ namespace EmployeeManagement.Controllers
         {
             var response = await companyService.GetAllCompaniesAsync();
             return Ok(response);
+        }
+        
+        
+        [HttpGet("GetCompanyByName")]
+        public async Task<IActionResult> GetCompanyByName(string name)
+        {
+            var response = await companyService.GetCompanyByNameAsync(name);
+            if (!response.Success)
+            {
+                return NotFound(response);
+            }
+            
+            return Ok(response);
+
         }
 
 

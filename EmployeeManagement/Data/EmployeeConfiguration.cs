@@ -30,7 +30,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.Property(e => e.Gender)
         .HasConversion<string>()
-            .IsRequired();  
+            .IsRequired();
 
     }
 }
