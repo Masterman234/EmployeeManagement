@@ -12,9 +12,10 @@ public class EmployeeEducationConfiguration : IEntityTypeConfiguration<EmployeeE
             .IsRequired()
             .HasMaxLength(50);
         builder.Property(ee => ee.Qualification)
+            .HasConversion<string>()
             .IsRequired()
             .HasMaxLength(50)
-            .HasConversion<string>();
+            ;
 
         builder.Property(ee => ee.FieldOfStudy)
             .IsRequired()
