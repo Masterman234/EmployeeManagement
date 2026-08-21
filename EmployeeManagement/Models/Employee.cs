@@ -15,4 +15,5 @@ public class Employee : BaseEntity
     public Guid CompanyId { get; set; }
     public Company Company { get; set; }
 
+   
 }

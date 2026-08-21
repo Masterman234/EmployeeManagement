@@ -100,6 +100,48 @@ namespace EmployeeManagement.Migrations
                     b.ToTable("Employees", (string)null);
                 });
 
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FieldOfStudy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Qualification")
+                        .HasMaxLength(50)
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("EmployeeEducations", (string)null);
+                });
+
             modelBuilder.Entity("EmployeeManagement.Models.Employee", b =>
                 {
                     b.HasOne("EmployeeManagement.Models.Company", "Company")
@@ -109,6 +151,15 @@ namespace EmployeeManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducation", b =>
+                {
+                    b.HasOne("EmployeeManagement.Models.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("EmployeeManagement.Models.Company", b =>
