@@ -5,7 +5,7 @@ namespace EmployeeManagement.Dtos;
 
 public class CreateEmployeeEducationDto
 {
-    [Required]
+    [Required (ErrorMessage ="Employee ID is required")]
     public Guid EmployeeId { get; set; }
 
     [Required, MaxLength(200)]
