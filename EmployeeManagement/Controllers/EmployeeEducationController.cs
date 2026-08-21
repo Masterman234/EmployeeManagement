@@ -8,7 +8,7 @@ namespace EmployeeManagement.Controllers;
 [Route("api/[controller]")]
 public class EmployeeEducationController(IEmployeeEducationService employeeEducationService) : ControllerBase
 {
-    [HttpPost("create")]
+    [HttpPost("CreateEmployeeEducation")]
     public async Task<IActionResult> Create(CreateEmployeeEducationDto request)
     {
         var result = await employeeEducationService.CreateEmployeeEducationAsync(request);
@@ -19,7 +19,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("GetEmployeeEducationById/{id:guid}")]
     public async Task<IActionResult> GetById([FromRoute] Guid id)
     {
         var result = await employeeEducationService.GetEmployeeEducationByIdAsync(id);
@@ -30,7 +30,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-    [HttpGet("getAll")]
+    [HttpGet("GetAllEmployeeEducations")]
     public async Task<IActionResult> GetAll()
     {
         var result = await employeeEducationService.GetAllEmployeeEducationsAsync();
@@ -41,7 +41,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("UpdateEmployeeEducation/{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, UpdateEmployeeEducationDto request)
     {
         request.Id = id;
@@ -53,7 +53,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-    [HttpDelete("delete/{id:guid}")]
+    [HttpDelete("Delete/{id:guid}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         var result = await employeeEducationService.DeleteEmployeeEducationAsync(id);
