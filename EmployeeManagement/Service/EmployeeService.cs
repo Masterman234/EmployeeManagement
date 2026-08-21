@@ -4,25 +4,33 @@ using EmployeeManagement.Repository;
 
 namespace EmployeeManagement.Service;
 
-public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployeeService
+public class EmployeeService(IEmployeeRepository employeeRepository,ICompanyRepository companyRepository) : IEmployeeService
 {
-    public async Task<BaseResponseModel<CreateEmployeeDto>> CreateEmployeeAsync(CreateEmployeeDto request)
+    public async Task<BaseResponseModel<EmployeeDto>> CreateEmployeeAsync(CreateEmployeeDto request)
     {
         if (request == null)
         {
-            return BaseResponseModel<CreateEmployeeDto>.FailureResponse("Request cannot be null");
+            return BaseResponseModel<EmployeeDto>.FailureResponse("Request cannot be null");
+        }
+
+        if (request.CompanyId == Guid.Empty)
+        {
+            return BaseResponseModel<EmployeeDto>.FailureResponse("Company is required.");
         }
 
         var existingEmployee = await employeeRepository.ExistByEmailAsync(request.Email);
+        
         if (existingEmployee != null)
         {
-            return BaseResponseModel<CreateEmployeeDto>.FailureResponse("Employee with the same email already exists");
+            return BaseResponseModel<EmployeeDto>.FailureResponse("Employee with the same email already exists");
         }
 
-        var phone = await employeeRepository.ExistByPhoneAsync(request.Telephone);
-        if (phone != null)
+        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+
+        if (company == null)
         {
-            return BaseResponseModel<CreateEmployeeDto>.FailureResponse("Employee with the same phone number already exists");
+            return BaseResponseModel<EmployeeDto>
+                .FailureResponse("Selected company does not exist.");
         }
 
         var employee = new Employee
@@ -32,31 +40,38 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = request.LastName,
             Email = request.Email,
             Telephone = request.Telephone,
-            CompanyName = request.CompanyName,
             Department = request.Department,
             Gender = request.Gender,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+
+          // this create the relationship between employee and company
+            CompanyId = request.CompanyId
 
         };
         await employeeRepository.CreateEmployeeAsync(employee);
 
-        var response = new CreateEmployeeDto
+        var response = new EmployeeDto
         {
+            Id = employee.Id,
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
-            Gender = employee.Gender
+            Gender = employee.Gender,
+            CreatedAt = employee.CreatedAt,
+
+            CompanyId = employee.CompanyId,
+            CompanyName = company.Name
+
         };
 
-        return BaseResponseModel<CreateEmployeeDto>.SuccessResponse(response, "Employee created successfully");
+        return BaseResponseModel<EmployeeDto>.SuccessResponse(response, "Employee created successfully");
     }
 
     public async Task<BaseResponseModel<bool>> DeleteEmployeeAsync(Guid id)
     {
-        var employee = employeeRepository.GetEmployeeByIdAsync(id);
+        var employee = await employeeRepository.GetEmployeeByIdAsync(id);
         if (employee == null)
         {
             return BaseResponseModel<bool>.FailureResponse("Employee not found");
@@ -81,12 +96,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
         {
             response.Add(new EmployeeDto
             {
-                Id = employee.Id,
+                Id = Guid.NewGuid(),
+                CompanyId = employee.CompanyId,
                 FirstName = employee.FirstName,
                 LastName = employee.LastName,
                 Email = employee.Email,
                 Telephone = employee.Telephone,
-                CompanyName = employee.CompanyName,
                 Department = employee.Department,
                 Gender = employee.Gender,
             });
@@ -106,12 +121,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
 
         var response = new EmployeeDto
         {
-            Id = employee.Id,
+            Id = Guid.NewGuid(),
+            CompanyId = employee.CompanyId,
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender,
         };
@@ -128,28 +143,31 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             return BaseResponseModel<EmployeeDto>.FailureResponse("Employee not found");
         }
 
-        employee.Id = request.Id;
+        var existingEmail = await employeeRepository.ExistByEmailAsync(request.Email);
+
+        if (existingEmail != null && existingEmail.Id != employee.Id)
+        {
+            return BaseResponseModel<EmployeeDto>
+                .FailureResponse("Employee with the same email already exists");
+        }
+
+        var existingPhone = await employeeRepository.ExistByPhoneAsync(request.Telephone);
+
+        if (existingPhone != null && existingPhone.Id != employee.Id)
+        {
+            return BaseResponseModel<EmployeeDto>
+                .FailureResponse("Employee with the same phone number already exists");
+        }
+
         employee.FirstName = request.FirstName;
         employee.LastName = request.LastName;
-        employee.Email = request.Email;
         employee.Email = request.Email;
         employee.Telephone = request.Telephone;
         employee.Department = request.Department;
         employee.Gender = request.Gender;
 
         await employeeRepository.UpdateEmployeeAsync(employee);
-
-        var employeeDto = new EmployeeDto
-        {
-            Id = employee.Id,
-            FirstName = employee.FirstName,
-            LastName = employee.LastName,
-            Email = employee.Email,
-            Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
-            Department = employee.Department,
-            Gender = employee.Gender
-        };
+            
 
         return BaseResponseModel<EmployeeDto>.SuccessResponse(request, "Employee updated successfully");
 

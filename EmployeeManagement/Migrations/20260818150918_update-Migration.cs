@@ -7,6 +7,7 @@ namespace EmployeeManagement.Migrations
 {
     /// <inheritdoc />
     public partial class UpdateMigration : Migration
+    public partial class InitialMigrationSecond : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

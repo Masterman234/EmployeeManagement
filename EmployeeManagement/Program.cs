@@ -13,10 +13,10 @@ builder.Services.AddOpenApi();
 
 //Repositories
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IEmployeeEducationRepository, EmployeeEducationRepository>();
-
+builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 //Services Registration
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IEmployeeEducationService, EmployeeEducationService>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
