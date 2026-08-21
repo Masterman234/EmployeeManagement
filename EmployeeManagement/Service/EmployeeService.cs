@@ -4,7 +4,7 @@ using EmployeeManagement.Repository;
 
 namespace EmployeeManagement.Service;
 
-public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployeeService
+public class EmployeeService(IEmployeeRepository employeeRepository,ICompanyRepository companyRepository) : IEmployeeService
 {
     public async Task<BaseResponseModel<EmployeeDto>> CreateEmployeeAsync(CreateEmployeeDto request)
     {
@@ -13,16 +13,24 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             return BaseResponseModel<EmployeeDto>.FailureResponse("Request cannot be null");
         }
 
+        if (request.CompanyId == Guid.Empty)
+        {
+            return BaseResponseModel<EmployeeDto>.FailureResponse("Company is required.");
+        }
+
         var existingEmployee = await employeeRepository.ExistByEmailAsync(request.Email);
+        
         if (existingEmployee != null)
         {
             return BaseResponseModel<EmployeeDto>.FailureResponse("Employee with the same email already exists");
         }
 
-        var phone = await employeeRepository.ExistByPhoneAsync(request.Telephone);
-        if (phone != null)
+        var company = await companyRepository.GetCompanyByIdAsync(request.CompanyId);
+
+        if (company == null)
         {
-            return BaseResponseModel<EmployeeDto>.FailureResponse("Employee with the same phone number already exists");
+            return BaseResponseModel<EmployeeDto>
+                .FailureResponse("Selected company does not exist.");
         }
 
         var employee = new Employee
@@ -32,10 +40,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = request.LastName,
             Email = request.Email,
             Telephone = request.Telephone,
-            CompanyName = request.CompanyName,
             Department = request.Department,
             Gender = request.Gender,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow,
+
+          // this create the relationship between employee and company
+            CompanyId = request.CompanyId
 
         };
         await employeeRepository.CreateEmployeeAsync(employee);
@@ -47,10 +57,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender,
             CreatedAt = employee.CreatedAt,
+
+            CompanyId = employee.CompanyId,
+            CompanyName = company.Name
 
         };
 
@@ -84,12 +96,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
         {
             response.Add(new EmployeeDto
             {
-                Id = employee.Id,
+                Id = Guid.NewGuid(),
+                CompanyId = employee.CompanyId,
                 FirstName = employee.FirstName,
                 LastName = employee.LastName,
                 Email = employee.Email,
                 Telephone = employee.Telephone,
-                CompanyName = employee.CompanyName,
                 Department = employee.Department,
                 Gender = employee.Gender,
             });
@@ -109,12 +121,12 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
 
         var response = new EmployeeDto
         {
-            Id = employee.Id,
+            Id = Guid.NewGuid(),
+            CompanyId = employee.CompanyId,
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             Email = employee.Email,
             Telephone = employee.Telephone,
-            CompanyName = employee.CompanyName,
             Department = employee.Department,
             Gender = employee.Gender,
         };
@@ -152,10 +164,10 @@ public class EmployeeService(IEmployeeRepository employeeRepository) : IEmployee
         employee.Email = request.Email;
         employee.Telephone = request.Telephone;
         employee.Department = request.Department;
-        employee.CompanyName = request.CompanyName;
         employee.Gender = request.Gender;
 
         await employeeRepository.UpdateEmployeeAsync(employee);
+            
 
         return BaseResponseModel<EmployeeDto>.SuccessResponse(request, "Employee updated successfully");
 
