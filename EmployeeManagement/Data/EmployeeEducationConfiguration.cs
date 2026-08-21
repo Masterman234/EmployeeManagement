@@ -13,7 +13,8 @@ public class EmployeeEducationConfiguration : IEntityTypeConfiguration<EmployeeE
             .HasMaxLength(50);
         builder.Property(ee => ee.Qualification)
             .IsRequired()
-            .HasMaxLength(50);
+            .HasMaxLength(50)
+            .HasConversion<string>();
 
         builder.Property(ee => ee.FieldOfStudy)
             .IsRequired()
