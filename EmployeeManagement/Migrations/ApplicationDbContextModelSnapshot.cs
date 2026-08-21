@@ -100,22 +100,6 @@ namespace EmployeeManagement.Migrations
                     b.ToTable("Employees", (string)null);
                 });
 
-            modelBuilder.Entity("EmployeeManagement.Models.Employee", b =>
-                {
-                    b.HasOne("EmployeeManagement.Models.Company", "Company")
-                        .WithMany("Employees")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Company");
-                });
-
-            modelBuilder.Entity("EmployeeManagement.Models.Company", b =>
-                {
-                    b.Navigation("Employees");
-                });
-
             modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -153,7 +137,34 @@ namespace EmployeeManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EmployeeId");
+
                     b.ToTable("EmployeeEducations", (string)null);
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.Employee", b =>
+                {
+                    b.HasOne("EmployeeManagement.Models.Company", "Company")
+                        .WithMany("Employees")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducation", b =>
+                {
+                    b.HasOne("EmployeeManagement.Models.Employee", null)
+                        .WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.Company", b =>
+                {
+                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }

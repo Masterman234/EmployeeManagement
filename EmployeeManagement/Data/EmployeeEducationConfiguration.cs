@@ -24,5 +24,9 @@ public class EmployeeEducationConfiguration : IEntityTypeConfiguration<EmployeeE
 
         builder.Property(ee => ee.EndDate)
             .IsRequired();
+        builder.HasOne<Employee>()
+            .WithMany()
+            .HasForeignKey(ee => ee.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
