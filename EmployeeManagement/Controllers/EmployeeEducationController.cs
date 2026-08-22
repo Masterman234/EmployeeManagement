@@ -1,4 +1,5 @@
 ﻿using EmployeeManagement.Dtos;
+using EmployeeManagement.Dtos.EmployeeEduDto;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,6 +13,18 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
     public async Task<IActionResult> Create(CreateEmployeeEducationDto request)
     {
         var result = await employeeEducationService.CreateEmployeeEducationAsync(request);
+        if (!result.Success)
+        {
+            return BadRequest(result);
+        }
+        return Ok(result);
+    }
+
+
+    [HttpPost("CreateEmployeeEducationHistory")]
+    public async Task<IActionResult> CreateHistory([FromBody] CreateEmployeeEducationHistoryDto request)
+    {
+        var result = await employeeEducationService.CreateEmployeeEducationHistoryAsync(request);
         if (!result.Success)
         {
             return BadRequest(result);

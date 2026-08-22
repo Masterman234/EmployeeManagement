@@ -13,6 +13,16 @@ public class EmployeeEducationRepository(ApplicationDbContext context) : IEmploy
         return employeeEducation;
     }
 
+    public async Task<IEnumerable<EmployeeEducation>> CreateEmployeeEducationHistoryAsync(
+     IEnumerable<EmployeeEducation> educations)
+    {
+        await context.EmployeeEducations.AddRangeAsync(educations);
+
+        await context.SaveChangesAsync();
+
+        return educations;
+    }
+
     public async Task<EmployeeEducation?> GetEmployeeEducationByIdAsync(Guid id)
     {
         return await context.EmployeeEducations
@@ -39,4 +49,6 @@ public class EmployeeEducationRepository(ApplicationDbContext context) : IEmploy
             await context.SaveChangesAsync();
         }
     }
+
+
 }
