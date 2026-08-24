@@ -5,11 +5,10 @@ using EmployeeManagement.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Host.UseSerilog((context, configuration) =>
 {
-    configuration
-    .MinimumLevel.Information()
-    .WriteTo.Console();
+    configuration.ReadFrom.Configuration(context.Configuration);
 });
 
 // Add services to the container.
