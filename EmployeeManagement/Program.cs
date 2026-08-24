@@ -1,9 +1,16 @@
+using Serilog;
 using EmployeeManagement.Data;
 using EmployeeManagement.Repository;
 using EmployeeManagement.Service;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Host.UseSerilog((context, configuration) =>
+{
+    configuration
+    .MinimumLevel.Information()
+    .WriteTo.Console();
+});
 
 // Add services to the container.
 
@@ -37,6 +44,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 
 app.UseAuthorization();
 

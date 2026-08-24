@@ -1,6 +1,7 @@
 ﻿using EmployeeManagement.Enums;
 using EmployeeManagement.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace EmployeeManagement.Data;
@@ -15,14 +16,23 @@ public class EmployeeEducationConfiguration : IEntityTypeConfiguration<EmployeeE
             .IsRequired()
             .HasMaxLength(50);
 
+        var qualificationsComparer = new ValueComparer<ICollection<Qualification>>(
+            (a, b) => a!.SequenceEqual(b!),
+            c => c.Aggregate(0, (hash, val) => HashCode.Combine(hash, val.GetHashCode())),
+            c => c.ToHashSet()
+        );
+
         builder.Property(ee => ee.Qualifications)
-             .HasConversion(
-                 v => string.Join(',', v.Select(x => x.ToString())),
-                 v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-                       .Select(x => (Qualification)Enum.Parse(typeof(Qualification), x))
-                       .ToList()
-             )
-             .IsRequired()
+            .HasConversion(
+                v => string.Join(',', v.Select(x => x.ToString())),
+                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                      .Select(x => (Qualification)Enum.Parse(typeof(Qualification), x))
+                      .ToHashSet()
+            )
+            .Metadata.SetValueComparer(qualificationsComparer);
+
+        builder.Property(ee => ee.Qualifications)
+            .IsRequired()
             .HasMaxLength(200);
 
         builder.Property(ee => ee.FieldOfStudy)

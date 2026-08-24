@@ -20,8 +20,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-
-    [HttpPost("CreateEmployeeEducationHistory")]
+    [HttpPost("history")]
     public async Task<IActionResult> CreateHistory([FromBody] CreateEmployeeEducationHistoryDto request)
     {
         var result = await employeeEducationService.CreateEmployeeEducationHistoryAsync(request);

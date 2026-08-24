@@ -5,14 +5,18 @@ using EmployeeManagement.Repository;
 
 namespace EmployeeManagement.Service;
 
-public class EmployeeEducationService(IEmployeeEducationRepository employeeEducationRepository) : IEmployeeEducationService
+public class EmployeeEducationService(IEmployeeEducationRepository employeeEducationRepository, ILogger<EmployeeEducationService> logger) : IEmployeeEducationService
 {
     public async Task<BaseResponseModel<CreateEmployeeEducationDto>> CreateEmployeeEducationAsync(CreateEmployeeEducationDto request)
     {
         if (request == null)
         {
+            logger.LogWarning("CreateEmployeeEducationAsync called with a null request");
+
             return BaseResponseModel<CreateEmployeeEducationDto>.FailureResponse("Request cannot be null");
         }
+        logger.LogInformation("Creating education record for employee {EmployeeId} at {Institution}",
+        request.EmployeeId, request.Institution);
 
         var employeeEducation = new EmployeeEducation
         {
@@ -27,12 +31,13 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
         };
 
         await employeeEducationRepository.CreateEmployeeEducationAsync(employeeEducation);
-
+        logger.LogInformation("Successfully created education record {EducationId} for employee {EmployeeId}",
+    employeeEducation.Id, employeeEducation.EmployeeId);
         var response = new CreateEmployeeEducationDto
         {
             EmployeeId = employeeEducation.EmployeeId,
             Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications,
+            Qualifications = employeeEducation.Qualifications.ToList(),
             FieldOfStudy = employeeEducation.FieldOfStudy,
             StartDate = employeeEducation.StartDate,
             EndDate = employeeEducation.EndDate
@@ -45,8 +50,12 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
     {
         if (request == null || request.EducationHistory == null || !request.EducationHistory.Any())
         {
+            logger.LogWarning("CreateEmployeeEducationHistoryAsync called with an empty or null education history");   
+
             return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.FailureResponse("At least one education record is required");
         }
+        logger.LogInformation("Creating {EntryCount} education records for employee {EmployeeId}", request.EducationHistory.Count, request.EmployeeId);
+
         if (request.EducationHistory.Count > 1)
         {
             var firstQualificationSet = request.EducationHistory.First().Qualifications
@@ -58,8 +67,11 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
             if (allSame)
             {
-                return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.FailureResponse(
-                    "Each education record should have a distinct qualification — all entries currently share the same qualification(s), which looks like a mistake.");
+                logger.LogWarning("Rejected bulk education creation for employee {EmployeeId} — all {EntryCount} entries had identical qualifications",
+                request.EmployeeId, request.EducationHistory.Count);
+
+                return BaseResponseModel<IEnumerable<EmployeeEducationDto>>
+                    .FailureResponse( "Each education record should have a distinct qualification — all entries currently share the same qualification(s), which looks like a mistake.");
             }
         }
 
@@ -77,12 +89,15 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
         await employeeEducationRepository.CreateEmployeeEducationHistoryAsync(employeeEducations);
 
+        logger.LogInformation("Successfully created {EntryCount} education records for employee {EmployeeId}",
+       employeeEducations.Count, request.EmployeeId);
+
         var response = employeeEducations.Select(employeeEducation => new EmployeeEducationDto
         {
             Id = employeeEducation.Id,
             EmployeeId = employeeEducation.EmployeeId,
             Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications,
+            Qualifications = employeeEducation.Qualifications.ToList(),
             FieldOfStudy = employeeEducation.FieldOfStudy,
             StartDate = employeeEducation.StartDate,
             EndDate = employeeEducation.EndDate
@@ -122,7 +137,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
                 Id = employeeEducation.Id,
                 EmployeeId = employeeEducation.EmployeeId,
                 Institution = employeeEducation.Institution,
-                Qualifications = employeeEducation.Qualifications,
+                Qualifications = employeeEducation.Qualifications.ToList(),
                 FieldOfStudy = employeeEducation.FieldOfStudy,
                 StartDate = employeeEducation.StartDate,
                 EndDate = employeeEducation.EndDate
@@ -146,7 +161,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
             Id = employeeEducation.Id,
             EmployeeId = employeeEducation.EmployeeId,
             Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications,
+            Qualifications = employeeEducation.Qualifications.ToList(),
             FieldOfStudy = employeeEducation.FieldOfStudy,
             StartDate = employeeEducation.StartDate,
             EndDate = employeeEducation.EndDate
@@ -177,7 +192,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
             Id = employeeEducation.Id,
             EmployeeId = employeeEducation.EmployeeId,
             Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications,
+            Qualifications = employeeEducation.Qualifications.ToList(),
             FieldOfStudy = employeeEducation.FieldOfStudy,
             StartDate = employeeEducation.StartDate,
             EndDate = employeeEducation.EndDate
