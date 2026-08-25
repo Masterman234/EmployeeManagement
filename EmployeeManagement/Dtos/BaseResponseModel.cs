@@ -1,32 +1,15 @@
-﻿namespace EmployeeManagement.Dtos;
+﻿using EmployeeManagement.Enums;
 
 public class BaseResponseModel<T>
 {
-    public T? Data { get; set; }
     public bool Success { get; set; }
     public string? Message { get; set; }
-    public string? Error { get; set; }
+    public T? Data { get; set; }
+    public ErrorType ErrorType { get; set; } = ErrorType.None;
 
+    public static BaseResponseModel<T> SuccessResponse(T data, string message) =>
+        new() { Success = true, Data = data, Message = message };
 
-    public static BaseResponseModel<T> SuccessResponse(T data, string message = "Request successful")
-    {
-        return new BaseResponseModel<T>
-        {
-            Data = data,
-            Success = true,
-            Message = message,
-            Error = string.Empty
-        };
-    }
-
-    public static BaseResponseModel<T> FailureResponse(string message)
-    {
-        return new BaseResponseModel<T>
-        {
-            Data = default,
-            Success = false,
-            Message = string.Empty,
-            Error = message
-        };
-    }
+    public static BaseResponseModel<T> FailureResponse(string message, ErrorType errorType = ErrorType.Validation) =>
+        new() { Success = false, Message = message, ErrorType = errorType };
 }

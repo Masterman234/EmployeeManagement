@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Dtos.EmployeeEduDto;
+using EmployeeManagement.Enums;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,17 +32,6 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
-    [HttpGet("GetEmployeeEducationById/{id:guid}")]
-    public async Task<IActionResult> GetById([FromRoute] Guid id)
-    {
-        var result = await employeeEducationService.GetEmployeeEducationByIdAsync(id);
-        if (!result.Success)
-        {
-            return BadRequest(result);
-        }
-        return Ok(result);
-    }
-
     [HttpGet("GetAllEmployeeEducations")]
     public async Task<IActionResult> GetAll()
     {
@@ -53,6 +43,17 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
+    [HttpGet("GetEmployeeEducationById/{id:guid}")]
+    public async Task<IActionResult> GetById([FromRoute] Guid id)
+    {
+        var result = await employeeEducationService.GetEmployeeEducationByIdAsync(id);
+        if (!result.Success)
+        {
+            return result.ErrorType == ErrorType.NotFound ? NotFound(result) : BadRequest(result);
+        }
+        return Ok(result);
+    }
+
     [HttpPut("UpdateEmployeeEducation/{id:guid}")]
     public async Task<IActionResult> Update([FromRoute] Guid id, UpdateEmployeeEducationDto request)
     {
@@ -60,7 +61,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         var result = await employeeEducationService.UpdateEmployeeEducationAsync(request);
         if (!result.Success)
         {
-            return BadRequest(result);
+            return result.ErrorType == ErrorType.NotFound ? NotFound(result) : BadRequest(result);
         }
         return Ok(result);
     }
@@ -71,7 +72,7 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         var result = await employeeEducationService.DeleteEmployeeEducationAsync(id);
         if (!result.Success)
         {
-            return BadRequest(result);
+            return result.ErrorType == ErrorType.NotFound ? NotFound(result) : BadRequest(result);
         }
         return Ok(result);
     }

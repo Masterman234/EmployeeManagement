@@ -1,28 +1,30 @@
 ﻿using EmployeeManagement.Enums;
 using System.ComponentModel.DataAnnotations;
+namespace EmployeeManagement.Dtos.EmployeeEduDto;
 
-namespace EmployeeManagement.Dtos.EmployeeEduDto
+
+public class CreateEmployeeEducationHistoryDto
 {
-    public class CreateEmployeeEducationHistoryDto
-    {
-        public Guid EmployeeId { get; set; }
-        public List<EducationEntryDto> EducationHistory { get; set; } = new();
-    }
+    [Required(ErrorMessage = "Employee ID is required")]
+    public Guid EmployeeId { get; set; }
 
-    public class EducationEntryDto
-    {
-        [Required, MaxLength(200)]
-        public string Institution { get; set; }
+    [Required, MinLength(1, ErrorMessage = "At least one education entry is required")]
+    public List<EducationEntryDto> EducationHistory { get; set; } = new();
+}
 
-        [Required, MinLength(1, ErrorMessage = "At least one qualification is required")]
-        public List<Qualification> Qualifications { get; set; } = new();
+public class EducationEntryDto
+{
+    [Required, MaxLength(200)]
+    public string Institution { get; set; }
 
-        [Required, MaxLength(150)]
-        public string FieldOfStudy { get; set; }
+    [Required, MinLength(1, ErrorMessage = "At least one qualification is required")]
+    public HashSet<Qualification> Qualifications { get; set; } = new();
 
-        [Required]
-        public DateTime StartDate { get; set; }
+    [Required, MaxLength(150)]
+    public string FieldOfStudy { get; set; }
 
-        public DateTime? EndDate { get; set; }
-    }
+    [Required]
+    public DateTime StartDate { get; set; }
+
+    public DateTime? EndDate { get; set; }
 }
