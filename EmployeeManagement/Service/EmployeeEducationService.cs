@@ -1,5 +1,6 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Dtos.EmployeeEduDto;
+using EmployeeManagement.Enums;
 using EmployeeManagement.Models;
 using EmployeeManagement.Repository;
 
@@ -37,7 +38,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
         {
             EmployeeId = employeeEducation.EmployeeId,
             Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications.ToList(),
+            Qualifications = employeeEducation.Qualifications.ToHashSet(),
             FieldOfStudy = employeeEducation.FieldOfStudy,
             StartDate = employeeEducation.StartDate,
             EndDate = employeeEducation.EndDate
@@ -111,7 +112,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
         var employeeEducation = await employeeEducationRepository.GetEmployeeEducationByIdAsync(id);
         if (employeeEducation == null)
         {
-            return BaseResponseModel<bool>.FailureResponse("Employee education not found");
+            return BaseResponseModel<bool>.FailureResponse("No employee education record found", ErrorType.NotFound);
         }
 
         await employeeEducationRepository.DeleteEmployeeEducationAsync(id);
@@ -125,9 +126,9 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
         if (employeeEducations == null || !employeeEducations.Any())
         {
-            return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.FailureResponse("No employee education records found");
+            return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.FailureResponse("No employee education record found");
         }
-
+                       
         var response = new List<EmployeeEducationDto>();
 
         foreach (var employeeEducation in employeeEducations)
@@ -153,7 +154,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
         if (employeeEducation == null)
         {
-            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("No employee education record found");
+            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("No employee education record found", ErrorType.NotFound);
         }
 
         var response = new EmployeeEducationDto
@@ -175,7 +176,7 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
         var employeeEducation = await employeeEducationRepository.GetEmployeeEducationByIdAsync(request.Id);
         if (employeeEducation == null)
         {
-            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("Employee education not found");
+            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("No employee education record found", ErrorType.NotFound);
         }
 
         employeeEducation.EmployeeId = request.EmployeeId;
