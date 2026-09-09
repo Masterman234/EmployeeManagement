@@ -10,11 +10,12 @@ public class EmployeeEducationRepository(ApplicationDbContext context) : IEmploy
     {
         await context.EmployeeEducations.AddAsync(employeeEducation);
         await context.SaveChangesAsync();
+
         return employeeEducation;
     }
 
     public async Task<IEnumerable<EmployeeEducation>> CreateEmployeeEducationHistoryAsync(
-     IEnumerable<EmployeeEducation> educations)
+        IEnumerable<EmployeeEducation> educations)
     {
         await context.EmployeeEducations.AddRangeAsync(educations);
 
@@ -26,29 +27,34 @@ public class EmployeeEducationRepository(ApplicationDbContext context) : IEmploy
     public async Task<EmployeeEducation?> GetEmployeeEducationByIdAsync(Guid id)
     {
         return await context.EmployeeEducations
+            .Include(ee => ee.Qualifications)
             .FirstOrDefaultAsync(ee => ee.Id == id);
     }
 
     public async Task<IEnumerable<EmployeeEducation>> GetAllEmployeeEducationsAsync()
     {
-        return await context.EmployeeEducations.ToListAsync();
+        return await context.EmployeeEducations
+            .Include(ee => ee.Qualifications)
+            .ToListAsync();
     }
 
     public async Task UpdateEmployeeEducationAsync(EmployeeEducation employeeEducation)
     {
         context.EmployeeEducations.Update(employeeEducation);
+
         await context.SaveChangesAsync();
     }
 
     public async Task DeleteEmployeeEducationAsync(Guid id)
     {
-        var employeeEducation = await context.EmployeeEducations.FirstOrDefaultAsync(ee => ee.Id == id);
+        var employeeEducation = await context.EmployeeEducations
+            .FirstOrDefaultAsync(ee => ee.Id == id);
+
         if (employeeEducation != null)
         {
             context.EmployeeEducations.Remove(employeeEducation);
+
             await context.SaveChangesAsync();
         }
     }
-
-
 }

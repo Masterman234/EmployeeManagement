@@ -3,6 +3,7 @@ using EmployeeManagement.Data;
 using EmployeeManagement.Repository;
 using EmployeeManagement.Service;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,10 @@ builder.Services.AddScoped<IEmployeeEducationService, EmployeeEducationService>(
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Register the  authentication handler
+builder.Services.AddAuthentication("Custom")
+    .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("Custom", _ => { });
+
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
@@ -44,7 +49,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
