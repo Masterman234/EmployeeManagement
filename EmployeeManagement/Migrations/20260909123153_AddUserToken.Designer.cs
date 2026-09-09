@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EmployeeManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260821102141_Update")]
-    partial class Update
+    [Migration("20260909123153_AddUserToken")]
+    partial class AddUserToken
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -115,7 +115,7 @@ namespace EmployeeManagement.Migrations
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FieldOfStudy")
@@ -131,11 +131,6 @@ namespace EmployeeManagement.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Qualification")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -144,6 +139,108 @@ namespace EmployeeManagement.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("EmployeeEducations", (string)null);
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducationQualification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("EmployeeEducationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Qualification")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeEducationId");
+
+                    b.ToTable("EmployeeEducationQualifications");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<DateTime>("RegisteredAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.UserToken", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.ToTable("UserTokens");
                 });
 
             modelBuilder.Entity("EmployeeManagement.Models.Employee", b =>
@@ -166,9 +263,25 @@ namespace EmployeeManagement.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducationQualification", b =>
+                {
+                    b.HasOne("EmployeeManagement.Models.EmployeeEducation", "EmployeeEducation")
+                        .WithMany("Qualifications")
+                        .HasForeignKey("EmployeeEducationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EmployeeEducation");
+                });
+
             modelBuilder.Entity("EmployeeManagement.Models.Company", b =>
                 {
                     b.Navigation("Employees");
+                });
+
+            modelBuilder.Entity("EmployeeManagement.Models.EmployeeEducation", b =>
+                {
+                    b.Navigation("Qualifications");
                 });
 #pragma warning restore 612, 618
         }

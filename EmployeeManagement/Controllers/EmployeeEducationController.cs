@@ -3,11 +3,13 @@ using EmployeeManagement.Dtos.EmployeeEduDto;
 using EmployeeManagement.Enums;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "Custom")]
 public class EmployeeEducationController(IEmployeeEducationService employeeEducationService) : ControllerBase
 {
     [HttpPost("CreateEmployeeEducation")]
