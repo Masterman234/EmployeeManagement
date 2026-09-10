@@ -31,6 +31,7 @@ builder.Services.AddScoped<IEmployeeEducationService, EmployeeEducationService>(
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
 // Register the  authentication handler
 builder.Services.AddAuthentication("Custom")
     .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("Custom", _ => { });
