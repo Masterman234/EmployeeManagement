@@ -1,4 +1,5 @@
-﻿using EmployeeManagement.Models;
+﻿using EmployeeManagement.Dtos;
+using EmployeeManagement.Models;
 
 namespace EmployeeManagement.Repository;
 
