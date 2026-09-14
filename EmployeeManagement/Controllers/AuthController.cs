@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text;
 using EmployeeManagement.Models;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
 
 namespace EmployeeManagement.Controllers;
 
@@ -15,9 +16,14 @@ namespace EmployeeManagement.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
-    public AuthController(ApplicationDbContext context)
+    private readonly IValidator<RegisterDto> _registerValidator;
+    private readonly IValidator<LoginDto> _loginValidator;
+
+    public AuthController(ApplicationDbContext context, IValidator<RegisterDto> registerValidator, IValidator<LoginDto> loginValidator)
     {
         _context = context;
+        _registerValidator = registerValidator;
+        _loginValidator = loginValidator;
     }
 
     [AllowAnonymous]
@@ -25,6 +31,13 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<ActionResult> Register(RegisterDto dto)
     {
+        // Validate the registration DTO
+        var registerResult = await _registerValidator.ValidateAsync(dto);
+        if (!registerResult.IsValid)
+        {
+            return BadRequest(registerResult.Errors);
+        }
+
         // Check if the email is already registered
         var email = dto.Email.Trim().ToLowerInvariant();
         var exists = await _context.Users.AnyAsync(u => u.Email == email);
@@ -56,6 +69,13 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult> Login(LoginDto dto)
     {
+        // Validate the login DTO
+        var loginResult = await _loginValidator.ValidateAsync(dto);
+        if (!loginResult.IsValid)
+        {
+            return BadRequest(loginResult.Errors);
+        }
+
         // 1) Retrieve the user by email
         var email = dto.Email.Trim().ToLowerInvariant();
         var user = await _context.Users.SingleOrDefaultAsync(u => u.Email == email);

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using Serilog;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +36,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthentication("Custom")
     .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("Custom", _ => { });
 
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -48,12 +51,12 @@ builder.Services.AddSwaggerGen(options =>
     });
 
     options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-{
     {
-        new OpenApiSecuritySchemeReference("Bearer", document),
-        new List<string>()
-    }
-});
+        {
+            new OpenApiSecuritySchemeReference("Bearer", document),
+            new List<string>()
+        }
+    });
 });
 
 var app = builder.Build();

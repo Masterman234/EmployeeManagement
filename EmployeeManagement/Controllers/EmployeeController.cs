@@ -1,11 +1,13 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "Custom")]
 public class EmployeeController(IEmployeeService employeeService) : ControllerBase
 {
     [HttpPost("create")]
@@ -54,8 +56,8 @@ public class EmployeeController(IEmployeeService employeeService) : ControllerBa
     }
 
 
-    [HttpDelete("delete")]
-    public async Task<IActionResult> Delete(Guid id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete([FromRoute] Guid id)
     {
         var result = await employeeService.DeleteEmployeeAsync(id);
         if (!result.Success)
