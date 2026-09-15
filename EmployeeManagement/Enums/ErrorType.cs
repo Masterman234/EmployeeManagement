@@ -6,6 +6,6 @@ public enum ErrorType
         None,
         NotFound,
         Validation,
-        Conflict
-    
+        Conflict,
+    InternalServerError
 }

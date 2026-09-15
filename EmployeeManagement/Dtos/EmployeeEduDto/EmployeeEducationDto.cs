@@ -6,9 +6,9 @@ public class EmployeeEducationDto
 {
     public Guid Id { get; set; }
     public Guid EmployeeId { get; set; }
-    public string Institution { get; set; }
+    public string Institution { get; set; } = string.Empty; 
     public List<Qualification> Qualifications { get; set; } = new();
-    public string FieldOfStudy { get; set; }
+    public string FieldOfStudy { get; set; } = string.Empty;
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }
 }

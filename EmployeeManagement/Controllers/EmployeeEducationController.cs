@@ -4,17 +4,25 @@ using EmployeeManagement.Enums;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using FluentValidation;
 
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Custom")]
-public class EmployeeEducationController(IEmployeeEducationService employeeEducationService) : ControllerBase
+[Authorize]
+public class EmployeeEducationController(IEmployeeEducationService employeeEducationService,IValidator<CreateEmployeeEducationDto> createValidator,
+    IValidator<CreateEmployeeEducationHistoryDto> createHistoryValidator,IValidator<UpdateEmployeeEducationDto> updateValidator) : ControllerBase
 {
     [HttpPost("CreateEmployeeEducation")]
     public async Task<IActionResult> Create(CreateEmployeeEducationDto request)
     {
+
+        var validation = await createValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors);
+        }
         var result = await employeeEducationService.CreateEmployeeEducationAsync(request);
         if (!result.Success)
         {
@@ -26,6 +34,12 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
     [HttpPost("history")]
     public async Task<IActionResult> CreateHistory([FromBody] CreateEmployeeEducationHistoryDto request)
     {
+        var validation = await createHistoryValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors);
+        }
+
         var result = await employeeEducationService.CreateEmployeeEducationHistoryAsync(request);
         if (!result.Success)
         {
@@ -34,10 +48,11 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
         return Ok(result);
     }
 
+
     [HttpGet("GetAllEmployeeEducations")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var result = await employeeEducationService.GetAllEmployeeEducationsAsync();
+        var result = await employeeEducationService.GetAllEmployeeEducationsAsync(pageNumber, pageSize);
         if (!result.Success)
         {
             return BadRequest(result);
@@ -60,10 +75,17 @@ public class EmployeeEducationController(IEmployeeEducationService employeeEduca
     public async Task<IActionResult> Update([FromRoute] Guid id, UpdateEmployeeEducationDto request)
     {
         request.Id = id;
+
+        var validation = await updateValidator.ValidateAsync(request);
+        if (!validation.IsValid)
+        {
+            return BadRequest(validation.Errors);
+        }
+
         var result = await employeeEducationService.UpdateEmployeeEducationAsync(request);
         if (!result.Success)
         {
-            return result.ErrorType == ErrorType.NotFound ? NotFound(result) : BadRequest(result);
+            return BadRequest(result);
         }
         return Ok(result);
     }

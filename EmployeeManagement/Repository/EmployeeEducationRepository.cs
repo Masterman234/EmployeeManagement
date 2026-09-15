@@ -57,4 +57,20 @@ public class EmployeeEducationRepository(ApplicationDbContext context) : IEmploy
             await context.SaveChangesAsync();
         }
     }
+
+    public async Task<(List<EmployeeEducation> Items, int TotalCount)> GetPagedEmployeeEducationsAsync(int pageNumber, int pageSize)
+    {
+        var query = context.EmployeeEducations
+            .Include(e => e.Qualifications)
+            .AsQueryable();
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }

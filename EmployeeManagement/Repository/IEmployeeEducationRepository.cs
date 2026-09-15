@@ -11,4 +11,5 @@ public interface IEmployeeEducationRepository
     Task<IEnumerable<EmployeeEducation>> GetAllEmployeeEducationsAsync();
     Task UpdateEmployeeEducationAsync(EmployeeEducation employeeEducation);
     Task DeleteEmployeeEducationAsync(Guid id);
+    Task<(List<EmployeeEducation> Items, int TotalCount)> GetPagedEmployeeEducationsAsync(int pageNumber, int pageSize);
 }
