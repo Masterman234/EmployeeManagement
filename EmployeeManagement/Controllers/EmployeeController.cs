@@ -1,13 +1,11 @@
 ﻿using EmployeeManagement.Dtos;
 using EmployeeManagement.Service;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Custom")]
 public class EmployeeController(IEmployeeService employeeService) : ControllerBase
 {
     [HttpPost("create")]

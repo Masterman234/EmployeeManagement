@@ -10,7 +10,7 @@ namespace EmployeeManagement.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(AuthenticationSchemes = "Custom")]
+[Authorize]
 public class EmployeeEducationController(IEmployeeEducationService employeeEducationService,IValidator<CreateEmployeeEducationDto> createValidator,
     IValidator<CreateEmployeeEducationHistoryDto> createHistoryValidator,IValidator<UpdateEmployeeEducationDto> updateValidator) : ControllerBase
 {

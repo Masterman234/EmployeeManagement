@@ -1,11 +1,13 @@
 using EmployeeManagement.Data;
 using EmployeeManagement.Repository;
 using EmployeeManagement.Service;
-using Microsoft.AspNetCore.Authentication;
+using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
-using FluentValidation;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,13 +30,38 @@ builder.Services.AddScoped<IEmployeeEducationRepository, EmployeeEducationReposi
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IEmployeeEducationService, EmployeeEducationService>();
-
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddHostedService<TokenCleanupService>();
+
 
 // Register the  authentication handler
-builder.Services.AddAuthentication("Custom")
-    .AddScheme<AuthenticationSchemeOptions, CustomAuthHandler>("Custom", _ => { });
+
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
@@ -60,6 +87,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
