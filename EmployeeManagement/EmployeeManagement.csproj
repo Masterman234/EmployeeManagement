@@ -7,6 +7,10 @@
     <UserSecretsId>52ce8252-911a-431f-8bdf-3f0d0b864cbf</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Data\Infrastructure.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.1" />
@@ -30,4 +34,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
-</Project>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\uploads\documents\" />
+    <Folder Include="wwwroot\uploads\images\" />
+  </ItemGroup>
+
+</Project>  
