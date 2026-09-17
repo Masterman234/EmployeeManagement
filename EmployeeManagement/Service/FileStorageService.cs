@@ -4,9 +4,10 @@ using EmployeeManagement.Models;
 
 namespace EmployeeManagement.Services
 {
-    public class FileStorageService (IWebHostEnvironment environment) : IFileStorageService
+    public class FileStorageService(
+        IWebHostEnvironment environment,
+        ILogger<FileStorageService> logger) : IFileStorageService
     {
-        
         public async Task<string> SaveFileAsync(
             IFormFile file,
             FileCategory category,
@@ -31,13 +32,22 @@ namespace EmployeeManagement.Services
                 uploadFolder,
                 storedFileName);
 
-            await using var stream = new FileStream(
-                filePath,
-                FileMode.Create);
+            try
+            {
+                await using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
 
-            await file.CopyToAsync(stream);
+                logger.LogInformation(
+                    "Saved file {StoredFileName} to {FilePath} ({FileSize} bytes)",
+                    storedFileName, filePath, file.Length);
 
-            return $"/uploads/{folderName}/{storedFileName}";
+                return $"/uploads/{folderName}/{storedFileName}";
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to save file {StoredFileName} to {FilePath}", storedFileName, filePath);
+                throw;
+            }
         }
 
         public Task DeleteFileAsync(string filePath)
@@ -46,9 +56,14 @@ namespace EmployeeManagement.Services
                 environment.WebRootPath,
                 filePath.TrimStart('/'));
 
-            if (System.IO.File.Exists(physicalPath))
+            if (File.Exists(physicalPath))
             {
-                System.IO.File.Delete(physicalPath);
+                File.Delete(physicalPath);
+                logger.LogInformation("Deleted physical file at {PhysicalPath}", physicalPath);
+            }
+            else
+            {
+                logger.LogWarning("Attempted to delete file at {PhysicalPath}, but it did not exist on disk", physicalPath);
             }
 
             return Task.CompletedTask;
