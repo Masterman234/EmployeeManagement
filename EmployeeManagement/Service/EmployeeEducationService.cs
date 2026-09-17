@@ -11,66 +11,78 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 {
     public async Task<BaseResponseModel<CreateEmployeeEducationDto>> CreateEmployeeEducationAsync(CreateEmployeeEducationDto request)
     {
-        
-        if (request == null)
+        try
         {
-            logger.LogWarning("CreateEmployeeEducationAsync called with a null request");
+            if (request == null)
+            {
+                logger.LogWarning("CreateEmployeeEducationAsync called with a null request");
 
-            return BaseResponseModel<CreateEmployeeEducationDto>.FailureResponse("Request cannot be null");
+                return BaseResponseModel<CreateEmployeeEducationDto>.FailureResponse("Request cannot be null");
+            }
+
+            logger.LogInformation("Creating education record for employee {EmployeeId} at {Institution}",
+                request.EmployeeId, request.Institution);
+
+            var education = new EmployeeEducation
+            {
+                Id = Guid.NewGuid(),
+                EmployeeId = request.EmployeeId,
+                Institution = request.Institution,
+                FieldOfStudy = request.FieldOfStudy,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            foreach (var qualification in request.Qualifications)
+            {
+                education.Qualifications.Add(
+                    new EmployeeEducationQualification
+                    {
+                        Id = Guid.NewGuid(),
+                        EmployeeEducationId = education.Id,
+                        Qualification = qualification,
+                        CreatedAt = DateTime.UtcNow
+                    });
+            }
+
+            await employeeEducationRepository.CreateEmployeeEducationAsync(education);
+
+            logger.LogInformation("Successfully created education record {EducationId} for employee {EmployeeId}",
+                education.Id, education.EmployeeId);
+
+            var response = new CreateEmployeeEducationDto
+            {
+                EmployeeId = education.EmployeeId,
+                Institution = education.Institution,
+                Qualifications = education.Qualifications
+                    .Select(x => x.Qualification)
+                    .ToHashSet(),
+                FieldOfStudy = education.FieldOfStudy,
+                StartDate = education.StartDate,
+                EndDate = education.EndDate
+            };
+
+            return BaseResponseModel<CreateEmployeeEducationDto>.SuccessResponse(
+                response,
+                "Employee education created successfully");
         }
-
-        logger.LogInformation("Creating education record for employee {EmployeeId} at {Institution}",
-            request.EmployeeId, request.Institution);
-
-        var education = new EmployeeEducation
+        catch (Exception ex)
         {
-            Id = Guid.NewGuid(),
-            EmployeeId = request.EmployeeId,
-            Institution = request.Institution,
-            FieldOfStudy = request.FieldOfStudy,
-            StartDate = request.StartDate,
-            EndDate = request.EndDate,
-            CreatedAt = DateTime.UtcNow
-        };
+            logger.LogError(
+                ex,
+                "An error occurred while creating employee education for employee {EmployeeId}",
+                request?.EmployeeId);
 
-        foreach (var qualification in request.Qualifications)
-        {
-            education.Qualifications.Add(
-                new EmployeeEducationQualification
-                {
-                    Id = Guid.NewGuid(),
-                    EmployeeEducationId = education.Id,
-                    Qualification = qualification,
-                    CreatedAt = DateTime.UtcNow
-                });
+            return BaseResponseModel<CreateEmployeeEducationDto>.FailureResponse(
+                "An error occurred while creating employee education", ErrorType.InternalServerError);
         }
-
-        await employeeEducationRepository.CreateEmployeeEducationAsync(education);
-
-        logger.LogInformation("Successfully created education record {EducationId} for employee {EmployeeId}",
-            education.Id, education.EmployeeId);
-
-        var response = new CreateEmployeeEducationDto
-        {
-            EmployeeId = education.EmployeeId,
-            Institution = education.Institution,
-            Qualifications = education.Qualifications
-                .Select(x => x.Qualification)
-                .ToHashSet(),
-            FieldOfStudy = education.FieldOfStudy,
-            StartDate = education.StartDate,
-            EndDate = education.EndDate
-        };
-
-        return BaseResponseModel<CreateEmployeeEducationDto>.SuccessResponse(
-            response,
-            "Employee education created successfully");
     }
 
     public async Task<BaseResponseModel<IEnumerable<EmployeeEducationDto>>> CreateEmployeeEducationHistoryAsync(CreateEmployeeEducationHistoryDto request)
     {
-        
-        
+        try
+        {
             if (request == null || request.EducationHistory == null || !request.EducationHistory.Any())
             {
                 logger.LogWarning("CreateEmployeeEducationHistoryAsync called with an empty or null education history");
@@ -154,12 +166,17 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
             return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.SuccessResponse(
                response, "Employee education history created successfully");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(
+                ex,
+                "An error occurred while creating employee education history for employee {EmployeeId}",
+                request?.EmployeeId);
 
-        
-        
-        
-
-        
+            return BaseResponseModel<IEnumerable<EmployeeEducationDto>>.FailureResponse(
+                "An error occurred while creating employee education history", ErrorType.InternalServerError);
+        }
     }
 
     public async Task<BaseResponseModel<bool>> DeleteEmployeeEducationAsync(Guid id)
@@ -193,63 +210,81 @@ public class EmployeeEducationService(IEmployeeEducationRepository employeeEduca
 
     public async Task<BaseResponseModel<PagedResponse<EmployeeEducationDto>>> GetAllEmployeeEducationsAsync(int pageNumber, int pageSize)
     {
-        var (employeeEducations, totalCount) = await employeeEducationRepository.GetPagedEmployeeEducationsAsync(pageNumber, pageSize);
-
-        if (employeeEducations == null || !employeeEducations.Any())
+        try
         {
-            return BaseResponseModel<PagedResponse<EmployeeEducationDto>>.FailureResponse("No employee education record found");
+            var (employeeEducations, totalCount) = await employeeEducationRepository.GetPagedEmployeeEducationsAsync(pageNumber, pageSize);
+
+            if (employeeEducations == null || !employeeEducations.Any())
+            {
+                return BaseResponseModel<PagedResponse<EmployeeEducationDto>>.FailureResponse("No employee education record found");
+            }
+
+            var items = employeeEducations.Select(employeeEducation => new EmployeeEducationDto
+            {
+                Id = employeeEducation.Id,
+                EmployeeId = employeeEducation.EmployeeId,
+                Institution = employeeEducation.Institution,
+                Qualifications = employeeEducation.Qualifications
+                    .Select(x => x.Qualification)
+                    .ToList(),
+                FieldOfStudy = employeeEducation.FieldOfStudy,
+                StartDate = employeeEducation.StartDate,
+                EndDate = employeeEducation.EndDate
+            }).ToList();
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var pagedResponse = new PagedResponse<EmployeeEducationDto>
+            {
+                Items = items,
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = totalPages
+            };
+
+            return BaseResponseModel<PagedResponse<EmployeeEducationDto>>.SuccessResponse(pagedResponse, "Employee education records retrieved successfully");
         }
-
-        var items = employeeEducations.Select(employeeEducation => new EmployeeEducationDto
+        catch (Exception ex)
         {
-            Id = employeeEducation.Id,
-            EmployeeId = employeeEducation.EmployeeId,
-            Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications
-                .Select(x => x.Qualification)
-                .ToList(),
-            FieldOfStudy = employeeEducation.FieldOfStudy,
-            StartDate = employeeEducation.StartDate,
-            EndDate = employeeEducation.EndDate
-        }).ToList();
+            logger.LogError(ex,"An error occurred while retrieving employee education records (page {PageNumber}, size {PageSize})",pageNumber, pageSize);
 
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        var pagedResponse = new PagedResponse<EmployeeEducationDto>
-        {
-            Items = items,
-            CurrentPage = pageNumber,
-            PageSize = pageSize,
-            TotalCount = totalCount,
-            TotalPages = totalPages
-        };
-
-        return BaseResponseModel<PagedResponse<EmployeeEducationDto>>.SuccessResponse(pagedResponse, "Employee education records retrieved successfully");
+            return BaseResponseModel<PagedResponse<EmployeeEducationDto>>.FailureResponse("An error occurred while retrieving employee education records", ErrorType.InternalServerError);
+        }
     }
 
     public async Task<BaseResponseModel<EmployeeEducationDto>> GetEmployeeEducationByIdAsync(Guid id)
     {
-        var employeeEducation = await employeeEducationRepository.GetEmployeeEducationByIdAsync(id);
-
-        if (employeeEducation == null)
+        try
         {
-            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("No employee education record found", ErrorType.NotFound);
+            var employeeEducation = await employeeEducationRepository.GetEmployeeEducationByIdAsync(id);
+
+            if (employeeEducation == null)
+            {
+                return BaseResponseModel<EmployeeEducationDto>.FailureResponse("No employee education record found", ErrorType.NotFound);
+            }
+
+            var response = new EmployeeEducationDto
+            {
+                Id = employeeEducation.Id,
+                EmployeeId = employeeEducation.EmployeeId,
+                Institution = employeeEducation.Institution,
+                Qualifications = employeeEducation.Qualifications
+                    .Select(x => x.Qualification)
+                    .ToList(),
+                FieldOfStudy = employeeEducation.FieldOfStudy,
+                StartDate = employeeEducation.StartDate,
+                EndDate = employeeEducation.EndDate
+            };
+
+            return BaseResponseModel<EmployeeEducationDto>.SuccessResponse(response, "Employee education retrieved successfully");
         }
-
-        var response = new EmployeeEducationDto
+        catch (Exception ex)
         {
-            Id = employeeEducation.Id,
-            EmployeeId = employeeEducation.EmployeeId,
-            Institution = employeeEducation.Institution,
-            Qualifications = employeeEducation.Qualifications
-                .Select(x => x.Qualification)
-                .ToList(),
-            FieldOfStudy = employeeEducation.FieldOfStudy,
-            StartDate = employeeEducation.StartDate,
-            EndDate = employeeEducation.EndDate
-        };
+            logger.LogError(ex,"An error occurred while retrieving employee education with ID {EmployeeEducationId}",id);
 
-        return BaseResponseModel<EmployeeEducationDto>.SuccessResponse(response, "Employee education retrieved successfully");
+            return BaseResponseModel<EmployeeEducationDto>.FailureResponse("An error occurred while retrieving employee education", ErrorType.InternalServerError);
+        }
     }
 
     public async Task<BaseResponseModel<EmployeeEducationDto>> UpdateEmployeeEducationAsync(

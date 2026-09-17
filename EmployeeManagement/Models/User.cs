@@ -17,7 +17,8 @@ public class User
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
 
     public bool IsActive { get; set; } = true;
-
+    [Required]
+    public ICollection<UploadedFile> Files { get; set; } = new HashSet<UploadedFile>();
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
     public DateTime? LoginAt { get; set; }

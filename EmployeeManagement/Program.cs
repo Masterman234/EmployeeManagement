@@ -1,6 +1,9 @@
 using EmployeeManagement.Data;
+using EmployeeManagement.Interfaces;
+using EmployeeManagement.Repositories;
 using EmployeeManagement.Repository;
 using EmployeeManagement.Service;
+using EmployeeManagement.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 using System.Text;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +21,7 @@ builder.Host.UseSerilog((context, configuration) =>
 });
 
 // Add services to the container.
-
+  
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -26,6 +30,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<ICompanyRepository, CompanyRepository>();
 builder.Services.AddScoped<IEmployeeEducationRepository, EmployeeEducationRepository>();
+builder.Services.AddScoped<IFileRepository, FileRepository>();
 //Services Registration
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
@@ -34,6 +39,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddHostedService<TokenCleanupService>();
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
+builder.Services.AddScoped<IFileValidator, FileValidator>();
+builder.Services.AddScoped<IFileService, FileService>();
+
+builder.Services.AddHttpContextAccessor();
 
 
 // Register the  authentication handler

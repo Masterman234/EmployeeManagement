@@ -14,6 +14,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<EmployeeEducationQualification> EmployeeEducationQualifications { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<UserToken> UserTokens { get; set; }
+    public DbSet<UploadedFile> Files { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -38,6 +39,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserToken>()    
             .HasIndex(ut => ut.Token)
             .IsUnique();
+
+        modelBuilder.Entity<UploadedFile>()
+            .HasOne(f => f.User)
+            .WithMany(u => u.Files)
+            .HasForeignKey(f => f.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
 
 
     }
